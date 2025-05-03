@@ -7,6 +7,7 @@ import authRouter from './routes/authRouter.js';
 import todoRouter from './routes/todoRouter.js';
 import session from 'express-session';
 import connectSessionSequelize from 'connect-session-sequelize';
+import { swaggerUi, swaggerSpec } from './config/swagger.js';
 
 const app = express();
 connectDB();
@@ -47,6 +48,7 @@ app.use(session({
 app.get('/', (req, res) => res.send("API get working"));
 app.use('/api/auth', authRouter);
 app.use('/api/todo', todoRouter);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
