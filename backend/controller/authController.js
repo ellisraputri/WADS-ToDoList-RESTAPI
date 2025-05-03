@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
-import userModel from '../models/userModel.js';
 import fs from 'fs';
 import { promisify } from 'util';
 import { uploadToCloudinary } from '../config/cloudinary.js';
+import User from '../models/userModel.js';
 
 function isValidEmail(email) {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -30,22 +30,21 @@ export const register = async (req, res) => {
     }
 
     try {
-        const existingUser = await userModel.findOne({ email: email });
+        const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ success: false, message: "User already exists" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const hashedKey = await bcrypt.hash(secretKey, 10);
-        const user = new userModel({
+        const newUser = await User.create({
             fullName: fullName,
             email: email,
             password: hashedPassword,
-            secretKey: hashedKey
+            secretKey: hashedKey,
         });
-        await user.save();
 
-        req.session.userId = user._id;
+        req.session.userId = newUser.id;
         return res.status(200).json({ success: true, message: "Account created successfully" });
 
     } catch (error) {
@@ -61,7 +60,7 @@ export const login = async(req,res)=>{
     }
 
     try {
-        const user = await userModel.findOne({ email: email });
+        const user = await User.findOne({ where: { email } });
         if(!user){
             return res.status(400).json({success:false, message:'Invalid credentials'})
         }
@@ -71,7 +70,7 @@ export const login = async(req,res)=>{
             return res.status(400).json({success:false, message:"Invalid credentials"})
         }
 
-        req.session.userId = user._id;
+        req.session.userId = user.id;
         return res.status(200).json({success:true, message:"Logged in successfully"});
 
 
@@ -107,12 +106,13 @@ export const verifySecretKey = async(req,res)=>{
     }
 
     try {
-        const user = await userModel.findOne({email: email});
+        const user = await User.findOne({ where: { email } });
         if(!user){
             return res.status(400).json({success:false, message:"User not found"});
         }
 
-        if(user.secretKey==='' || user.secretKey!==key){
+        const isMatch = await bcrypt.compare(key, user.secretKey);
+        if(!isMatch){
             return res.status(400).json({success:false, message:"Invalid key"}) 
         }
 
@@ -133,7 +133,7 @@ export const resetPassword = async(req,res)=>{
     }
 
     try {
-        const user = await userModel.findOne({email: email});
+        const user = await User.findOne({ where: { email } });
         if(!user){
             return res.status(400).json({success:false, message:"User not found"});
         }
@@ -159,7 +159,7 @@ export const resetPassword = async(req,res)=>{
 export const getUserData = async(req,res)=>{
     try {
         const {userId} = req.body;
-        const user = await userModel.findById(userId);
+        const user = await User.findByPk(userId); 
         if(!user){
             return res.status(400).json({success:false, message:"User not found"});
         }
@@ -180,11 +180,16 @@ export const updateBio = async(req,res)=>{
             return res.status(400).json({success:false, message:"Please fill in the bio."});
         }
         
-        const user = await userModel.findByIdAndUpdate(userId, { bio: newbio });
-        if(!user){
-            return res.status(400).json({success:false, message:"User not found"});
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(400).json({ success: false, message: "User not found" });
         }
-        return res.status(200).json({success:true, message:"Bio updated successfully"});
+
+        user.bio = newbio;
+        await user.save();
+
+        return res.status(200).json({ success: true, message: "Bio updated successfully" });
+
         
     } catch (error) {
         return res.status(500).json({success:false, message:error.message}) 
@@ -196,10 +201,14 @@ export const updateBio = async(req,res)=>{
 export const updateProfile =async(req,res)=>{
     const {userId, imageUrl} =req.body;
     try {
-        const user = await userModel.findByIdAndUpdate(userId, { profileImage: imageUrl });
+        const user = await User.findByPk(userId);
         if(!user){
             return res.status(400).json({success:false, message:"User not found"});
         }
+
+        user.profileImage = imageUrl;
+        await user.save();
+
         return res.status(200).json({success:true, message:"Profile image updated successfully"});
 
     } catch (error) {

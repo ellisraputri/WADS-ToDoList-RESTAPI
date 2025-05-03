@@ -1,4 +1,4 @@
-import todoModel from "../models/todoModel.js";
+import Todo from "../models/todoModel.js";
 
 
 export const addTodo = async(req,res) =>{
@@ -8,7 +8,7 @@ export const addTodo = async(req,res) =>{
     }
 
     try {
-        const newTodo = todoModel({
+        const newTodo = await Todo.create({
             title: title,
             completed: false,
             userId: userId
@@ -27,8 +27,8 @@ export const editTodo = async(req,res)=>{
         if(!title){
             return res.status(400).json({success:false, message:"Please fill in the task."})
         }
-
-        const todo = await todoModel.findById(todoId);
+        
+        const todo = await Todo.findByPk(todoId);
         if(!todo){
             return res.status(500).json({success:false, message:"Internal server error"})
         }
@@ -47,10 +47,12 @@ export const editTodo = async(req,res)=>{
 export const deleteTodo = async(req,res) =>{
     const {todoId} = req.body;
     try {
-        const todo = await todoModel.findByIdAndDelete(todoId);
+        const todo = await Todo.findByPk(todoId);
         if(!todo){
             return res.status(500).json({success:false, message:"Internal server error"})
         }
+        await todo.destroy();
+
         return res.status(200).json({ success: true, message: "Task deleted successfully" });
 
     } catch (error) {
@@ -61,7 +63,7 @@ export const deleteTodo = async(req,res) =>{
 export const getTodo = async(req,res) =>{
     const {userId} =req.body;
     try {
-        const todos = await todoModel.find({userId: userId});
+        const todos = await Todo.findAll({ where : {userId: userId}});
         return res.status(200).json({success:true, todos:todos});
 
     } catch (error) {

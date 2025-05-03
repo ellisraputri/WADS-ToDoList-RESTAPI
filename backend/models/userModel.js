@@ -1,15 +1,40 @@
-import mongoose from "mongoose";
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../config/mysql.js'; 
 
+const User = sequelize.define('User', {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+    },
+    fullName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+    },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    bio: {
+        type: DataTypes.STRING,
+        defaultValue: '',
+    },
+    profileImage: {
+        type: DataTypes.STRING,
+        defaultValue: '',
+    },
+    secretKey: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    }
+}, {
+    timestamps: true,
+    tableName: 'users' // optional: custom table name
+});
 
-const UserSchema = new mongoose.Schema({
-    fullName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true }, 
-    bio: { type: String, default:'' }, 
-    profileImage: { type: String, default:'' }, 
-    secretKey: { type: String, required:true}
-  }, { timestamps:true});
-
-const userModel = mongoose.models.user || mongoose.model('user', UserSchema);
-
-export default userModel
+export default User;

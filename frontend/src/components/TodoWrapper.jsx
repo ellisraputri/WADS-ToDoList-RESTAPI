@@ -72,7 +72,7 @@ export const TodoWrapper = () => {
     }
 
     const editToDo = id => {
-        setToDos(toDos.map((todo) => todo._id === id ? {...
+        setToDos(toDos.map((todo) => todo.id === id ? {...
             todo, isEditing: !todo.isEditing} : todo));
     }    
 
@@ -123,7 +123,7 @@ export const TodoWrapper = () => {
                     />
                 ) : (
                     <Todo
-                        key={todo._id}
+                        key={todo.id}
                         task={todo}
                         toggleComplete={editTask}
                         deleteToDo={deleteToDo}

@@ -6,7 +6,7 @@ export const EditTodoForm = ({ editToDo, task }) => {
     const handleSubmit = e => {
         e.preventDefault();
 
-        editToDo(task._id, value, task.completed);
+        editToDo(task.id, value, task.completed);
     }
 
     return (
