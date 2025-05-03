@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import connectDB from './config/mongodb.js'
 import authRouter from './routes/authRouter.js'
 import todoRouter from './routes/todoRouter.js';
+import session from 'express-session';
 
 
 // Creating express object
@@ -19,7 +20,17 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie:{
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production'? 'none':'strict',
+        maxAge: 7 *24 *60 *60 *1000
+    }
+}))
 
 //API Endpoints
 app.get('/', (req, res) => res.send("API get working"));

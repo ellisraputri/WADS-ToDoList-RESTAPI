@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import userModel from '../models/userModel.js';
 import fs from 'fs';
 import { promisify } from 'util';
@@ -46,14 +45,7 @@ export const register = async (req, res) => {
         });
         await user.save();
 
-        const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '7d'});
-        res.cookie('token', token,{
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production'? 'none':'strict',
-            maxAge: 7 *24 *60 *60 *1000
-        });
-
+        req.session.userId = user._id;
         return res.status(200).json({ success: true, message: "Account created successfully" });
 
     } catch (error) {
@@ -79,14 +71,7 @@ export const login = async(req,res)=>{
             return res.status(400).json({success:false, message:"Invalid credentials"})
         }
 
-        const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '7d'});
-        res.cookie('token', token,{
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production'? 'none':'strict',
-            maxAge: 7 *24 *60 *60 *1000
-        });
-
+        req.session.userId = user._id;
         return res.status(200).json({success:true, message:"Logged in successfully"});
 
 
@@ -97,19 +82,11 @@ export const login = async(req,res)=>{
 
  
 export const logout = async (req, res) => {
-    try {
-        res.cookie('token', '', { 
-            httpOnly: true, 
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-            expires: new Date(0) // Set expiry to remove the cookie
-        });
-
-        return res.status(200).json({ success: true, message: "Logged out successfully" });
-
-    } catch (error) {
-        return res.status(500).json({ success: false, message: error.message });
-    }
+    req.session.destroy(err => {
+        if (err) return res.status(500).json({ success: false, message: 'Logout failed' });
+        res.clearCookie('connect.sid'); // Optional: clear cookie
+        return res.json({ success: true, message: 'Logged out' });
+    });
 };
 
 export const isAuthenticated =async(req,res)=>{
