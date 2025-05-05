@@ -15,39 +15,41 @@ This project is a simple To Do app containing a todo list that is connected to t
 
 ## Setup Process
 
-- Clone the repository and change directory to the respective repository
+- Clone the repository and change directory to the respective repository.
     ```text
     git clone https://github.com/ellisraputri/WADS-ToDoList-RESTAPI
     cd WADS-ToDoList-RESTAPI
     ```
 
-- Installing all dependencies in backend
+- Installing all dependencies in backend.
     ```text
     cd backend
     npm install
     ```
 
-- Putting the backend .env file in the backend folder. Remember to change MySQL details in the file based on your local database specification.
+- Putting the backend .env file in the backend folder. Remember to change MySQL details in the .env file based on your local database specification.
+  
+- Create the database "todolistrestapi" in your localhost MySQL.
 
 - Run the backend
     ```text
     npm run dev
     ```
 
-- Change directory to frontend and install all dependencies
+- Open a new terminal for the frontend and install all dependencies.
     ```text
-    cd ../frontend
+    cd frontend
     npm install
     ```
 
 - Putting the frontend .env file in the frontend folder. No need to edit anything here.
 
-- Run the frontend
+- Run the frontend.
     ```text
     npm run dev
     ```
 
-- Access the application at localhost:5173
+- Access the application at localhost:5173.
 
 <br>
 
