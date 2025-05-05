@@ -13,7 +13,6 @@ function Navbar() {
   const {backendUrl, setIsLoggedIn, isLoggedIn} =useContext(AppContent);
 
   useEffect(()=>{
-    console.log("isloggedin",isLoggedIn)
     if(isLoggedIn === false) navigate('/')
   },[isLoggedIn])
 

@@ -15,7 +15,6 @@ function LandingPage() {
     const [isLoading, setIsLoading] =useState(true);
 
     useEffect(()=>{
-        console.log("userData:", userData); // See if it's ever updated
         if(userData) setIsLoading(false);
     }, [userData]);
 
