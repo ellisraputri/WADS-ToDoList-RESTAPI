@@ -108,3 +108,6 @@ This project is a simple To Do app containing a todo list that is connected to t
 ## API Documentation
 To access the API documentation, run the backend server and access http://localhost:5000/api-docs/.
 
+<img src="documentation/image/api_design1.png" alt ="API Design (Authentication and User)" width = "600"><br>
+
+<img src="documentation/image/api_design2.png" alt ="API Design (Todo)" width = "600"><br>
